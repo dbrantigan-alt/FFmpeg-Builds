@@ -24,18 +24,30 @@ ffbuild_dockerdl() {
 }
 
 ffbuild_dockerstage() {
-    # Stage .idl files, install widl via apt, compile, copy outputs to build
-    # include prefix. BtbN's base-win64 uses crosstool-ng-built MinGW (no
-    # widl), but the underlying Ubuntu base has apt — `mingw-w64-tools`
-    # provides widl as a standalone IDL compiler.
+    # Stage .idl files, install widl, compile to Win-style .h + _i.c headers,
+    # install into FFBUILD_DESTPREFIX/include. On Ubuntu 24.04+ widl was moved
+    # out of mingw-w64-tools; we try mingw-w64-tools + wine (the base image
+    # already has wine but with no widl in /usr/bin), then locate widl via
+    # find. Falls back loudly with diagnostic info if widl can't be located.
     to_df 'COPY --link decklink-sdk/idl /tmp/decklink-idl'
     to_df 'RUN set -xe && \\'
     to_df '    apt-get update -o Acquire::AllowInsecureRepositories=true && \\'
-    to_df '    apt-get install -y --no-install-recommends --allow-unauthenticated mingw-w64-tools && \\'
+    to_df '    apt-get install -y --no-install-recommends --allow-unauthenticated mingw-w64-tools 2>&1 | tail -5 && \\'
+    to_df '    (apt-get install -y --no-install-recommends --allow-unauthenticated wine64-tools 2>&1 | tail -3 || true) && \\'
     to_df '    rm -rf /var/lib/apt/lists/* && \\'
+    to_df '    WIDL=$(command -v widl 2>/dev/null || find /usr /opt -name "widl" -type f -executable 2>/dev/null | head -1) && \\'
+    to_df '    if [ -z "$WIDL" ]; then \\'
+    to_df '        echo "=== ERROR: widl not found ===" >&2 && \\'
+    to_df '        echo "=== Installed mingw/wine packages: ===" >&2 && \\'
+    to_df '        dpkg -l 2>/dev/null | grep -iE "wine|mingw|widl" >&2 && \\'
+    to_df '        echo "=== Files matching widl on filesystem: ===" >&2 && \\'
+    to_df '        find / -iname "*widl*" -o -iname "*genidl*" 2>/dev/null >&2 && \\'
+    to_df '        exit 1; \\'
+    to_df '    fi && \\'
+    to_df '    echo "Using widl: $WIDL" && \\'
     to_df '    cd /tmp/decklink-idl && \\'
-    to_df '    widl -h -H DeckLinkAPI.h DeckLinkAPI.idl && \\'
-    to_df '    widl -u -U DeckLinkAPI_i.c DeckLinkAPI.idl && \\'
+    to_df '    "$WIDL" -h -H DeckLinkAPI.h DeckLinkAPI.idl && \\'
+    to_df '    "$WIDL" -u -U DeckLinkAPI_i.c DeckLinkAPI.idl && \\'
     to_df '    mkdir -p "$FFBUILD_DESTPREFIX/include" && \\'
     to_df '    cp DeckLinkAPI.h DeckLinkAPI_i.c DeckLinkAPIVersion.h "$FFBUILD_DESTPREFIX/include/" && \\'
     to_df '    rm -rf /tmp/decklink-idl'
