@@ -24,11 +24,14 @@ ffbuild_dockerdl() {
 }
 
 ffbuild_dockerstage() {
-    # Stage .idl files in a temp dir, compile with widl, install outputs into
-    # the build include prefix. widl is in mingw-w64-tools, available in the
-    # BtbN base-win64 image's MinGW toolchain.
+    # Stage .idl files, install widl via apt, compile, copy outputs to build
+    # include prefix. BtbN's base-win64 uses crosstool-ng-built MinGW (no
+    # widl), but the underlying Ubuntu base has apt — `mingw-w64-tools`
+    # provides widl as a standalone IDL compiler.
     to_df 'COPY --link decklink-sdk/idl /tmp/decklink-idl'
-    to_df 'RUN set -xe && cd /tmp/decklink-idl && \\'
+    to_df 'RUN set -xe && \\'
+    to_df '    apt-get update && apt-get install -y --no-install-recommends mingw-w64-tools && rm -rf /var/lib/apt/lists/* && \\'
+    to_df '    cd /tmp/decklink-idl && \\'
     to_df '    widl -h -H DeckLinkAPI.h DeckLinkAPI.idl && \\'
     to_df '    widl -u -U DeckLinkAPI_i.c DeckLinkAPI.idl && \\'
     to_df '    mkdir -p "$FFBUILD_DESTPREFIX/include" && \\'
