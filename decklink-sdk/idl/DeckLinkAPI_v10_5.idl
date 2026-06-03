@@ -1,5 +1,5 @@
 /* -LICENSE-START-
-** Copyright (c) 2020 Blackmagic Design
+** Copyright (c) 2015 Blackmagic Design
 **  
 ** Permission is hereby granted, free of charge, to any person or organization 
 ** obtaining a copy of the software and accompanying documentation (the 
@@ -37,21 +37,38 @@
 ** 
 ** -LICENSE-END-
 */
+/* DeckLinkAPI_v10_5.idl */
 
-#ifndef BMD_DECKLINKAPI_v11_5_1_H
-#define BMD_DECKLINKAPI_v11_5_1_H
+/* Enum BMDDeckLinkConfigurationID - DeckLink Configuration ID */
 
-#include "DeckLinkAPI.h"
+typedef [v1_enum] enum	_BMDDeckLinkAttributeID_v10_5 {
 
-/* Enum BMDDeckLinkStatusID - DeckLink Status ID */
+    /* Integers */
 
-typedef uint32_t BMDDeckLinkStatusID_v11_5_1;
-enum _BMDDeckLinkStatusID_v11_5_1 {
+    BMDDeckLinkDeviceBusyState_v10_5                             = /* 'dbst' */ 0x64627374,
 
-    /* Video output flags */
+} BMDDeckLinkAttributeID_v10_5;
 
-	bmdDeckLinkStatusDetectedVideoInputFlags_v11_5_1                     = /* 'dvif' */ 0x64766966,
+// Forward Declarations
 
+interface IDeckLinkEncoderConfiguration_v10_5;
+
+/* Interface IDeckLinkEncoderConfiguration_v10_5 - DeckLink Encoder Configuration interface. Obtained from IDeckLinkEncoderInput */
+
+[
+    object,
+    uuid(67455668-0848-45DF-8D8E-350A77C9A028),
+    local, 
+    helpstring("DeckLink Encoder Configuration interface. Obtained from IDeckLinkEncoderInput")
+] interface IDeckLinkEncoderConfiguration_v10_5 : IUnknown
+{
+    HRESULT SetFlag([in] BMDDeckLinkEncoderConfigurationID cfgID, [in] BOOL value);
+    HRESULT GetFlag([in] BMDDeckLinkEncoderConfigurationID cfgID, [out] BOOL *value);
+    HRESULT SetInt([in] BMDDeckLinkEncoderConfigurationID cfgID, [in] LONGLONG value);
+    HRESULT GetInt([in] BMDDeckLinkEncoderConfigurationID cfgID, [out] LONGLONG *value);
+    HRESULT SetFloat([in] BMDDeckLinkEncoderConfigurationID cfgID, [in] double value);
+    HRESULT GetFloat([in] BMDDeckLinkEncoderConfigurationID cfgID, [out] double *value);
+    HRESULT SetString([in] BMDDeckLinkEncoderConfigurationID cfgID, [in] BSTR value);
+    HRESULT GetString([in] BMDDeckLinkEncoderConfigurationID cfgID, [out] BSTR *value);
+    HRESULT GetDecoderConfigurationInfo([out] void *buffer, [in] long bufferSize, [out] long *returnedSize);
 };
-
-#endif /* defined(BMD_DECKLINKAPI_v11_5_1_H) */

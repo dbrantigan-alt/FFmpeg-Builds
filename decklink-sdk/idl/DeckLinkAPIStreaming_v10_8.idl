@@ -1,5 +1,5 @@
 /* -LICENSE-START-
-** Copyright (c) 2017 Blackmagic Design
+** Copyright (c) 2016 Blackmagic Design
 **  
 ** Permission is hereby granted, free of charge, to any person or organization 
 ** obtaining a copy of the software and accompanying documentation (the 
@@ -38,21 +38,16 @@
 ** -LICENSE-END-
 */
 
-#ifndef BMD_DECKLINKAPI_v10_9_H
-#define BMD_DECKLINKAPI_v10_9_H
 
-#include "DeckLinkAPI.h"
 
-// Type Declarations
+/* Coclasses */
 
-/* Enum BMDDeckLinkAttributeID - DeckLink Attribute ID */
+importlib("stdole2.tlb");
 
-typedef uint32_t BMDDeckLinkConfigurationID_v10_9;
-enum _BMDDeckLinkConfigurationID_v10_9 {
-
-    /* Flags */
-
-    bmdDeckLinkConfig1080pNotPsF_v10_9                      = 'fpro',
+[
+    uuid(0CAA31F6-8A26-40B0-86A4-BF58DCCA710C),
+    helpstring("CBMDStreamingDiscovery Class")
+] coclass CBMDStreamingDiscovery_v10_8
+{
+    [default] interface IBMDStreamingDiscovery;
 };
-
-#endif /* defined(BMD_DECKLINKAPI_v10_9_H) */
