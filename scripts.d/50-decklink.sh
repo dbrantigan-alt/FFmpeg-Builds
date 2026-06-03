@@ -20,7 +20,11 @@ ffbuild_dockerstage() {
 }
 
 ffbuild_configure() {
+    # --enable-nonfree is required: Decklink links against Blackmagic's
+    # proprietary SDK, which makes the resulting binary non-redistributable.
+    # Acceptable for our private internal use (broadcast playout box).
     echo --enable-decklink
+    echo --enable-nonfree
 }
 
 ffbuild_unconfigure() {
