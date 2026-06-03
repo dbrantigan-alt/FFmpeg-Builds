@@ -30,7 +30,9 @@ ffbuild_dockerstage() {
     # provides widl as a standalone IDL compiler.
     to_df 'COPY --link decklink-sdk/idl /tmp/decklink-idl'
     to_df 'RUN set -xe && \\'
-    to_df '    apt-get update && apt-get install -y --no-install-recommends mingw-w64-tools && rm -rf /var/lib/apt/lists/* && \\'
+    to_df '    apt-get update -o Acquire::AllowInsecureRepositories=true && \\'
+    to_df '    apt-get install -y --no-install-recommends --allow-unauthenticated mingw-w64-tools && \\'
+    to_df '    rm -rf /var/lib/apt/lists/* && \\'
     to_df '    cd /tmp/decklink-idl && \\'
     to_df '    widl -h -H DeckLinkAPI.h DeckLinkAPI.idl && \\'
     to_df '    widl -u -U DeckLinkAPI_i.c DeckLinkAPI.idl && \\'
