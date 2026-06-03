@@ -50,10 +50,16 @@ ffbuild_dockerstage() {
     to_df '    # Replace with Windows-standard BOOL before parsing. Word boundaries \\'
     to_df '    # ensure we don\\047t corrupt unrelated identifiers (boolean stays intact). \\'
     to_df '    sed -i "s/\\bbool\\b/BOOL/g" *.idl && \\'
-    to_df '    "$WIDL" -h -H DeckLinkAPI.h DeckLinkAPI.idl && \\'
+    to_df '    # ffmpeg\\047s decklink_*.cpp #include each versioned header (DeckLinkAPI_v14_2_1.h etc.) \\'
+    to_df '    # directly, so widl-compile every .idl to its matching .h. The main UUID file (_i.c) \\'
+    to_df '    # is generated only from the master DeckLinkAPI.idl. \\'
+    to_df '    for idl in *.idl; do \\'
+    to_df '        base="${idl%.idl}" && \\'
+    to_df '        "$WIDL" -h -H "${base}.h" "$idl" || { echo "widl failed on $idl"; exit 1; } ; \\'
+    to_df '    done && \\'
     to_df '    "$WIDL" -u -U DeckLinkAPI_i.c DeckLinkAPI.idl && \\'
     to_df '    mkdir -p "$FFBUILD_DESTPREFIX/include" && \\'
-    to_df '    cp DeckLinkAPI.h DeckLinkAPI_i.c DeckLinkAPIVersion.h "$FFBUILD_DESTPREFIX/include/" && \\'
+    to_df '    cp *.h DeckLinkAPI_i.c "$FFBUILD_DESTPREFIX/include/" && \\'
     to_df '    rm -rf /tmp/decklink-idl'
 }
 
