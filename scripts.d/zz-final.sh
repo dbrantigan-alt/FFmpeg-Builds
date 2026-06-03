@@ -25,6 +25,7 @@ ffbuild_depends() {
     echo chromaprint
     echo dav1d
     echo davs2
+    echo decklink
     echo dvd
     echo fdk-aac
     echo ffnvcodec
